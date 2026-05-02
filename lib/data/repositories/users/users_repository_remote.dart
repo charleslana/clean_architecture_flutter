@@ -15,7 +15,7 @@ class UsersRepositoryRemote implements UsersRepository {
       final dtos = await _apiClient.getUsers();
       final users = dtos.map((dto) => dto.toDomain()).toList(growable: false);
       return Result.ok(users);
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return Result.error(e);
     }
   }
@@ -25,7 +25,7 @@ class UsersRepositoryRemote implements UsersRepository {
     try {
       final dto = await _apiClient.getUser(id);
       return Result.ok(dto.toDomain());
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return Result.error(e);
     }
   }

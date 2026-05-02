@@ -20,7 +20,7 @@ class PostsRepositoryRemote implements PostsRepository {
       final dtos = await _apiClient.getPosts();
       final posts = dtos.map((dto) => dto.toDomain()).toList(growable: false);
       return Result.ok(posts);
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return Result.error(e);
     }
   }
@@ -30,7 +30,7 @@ class PostsRepositoryRemote implements PostsRepository {
     try {
       final dto = await _apiClient.getPost(id);
       return Result.ok(dto.toDomain());
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return Result.error(e);
     }
   }

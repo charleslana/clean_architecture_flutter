@@ -232,6 +232,7 @@ o `ErrorMode` ativo. Modos disponíveis:
 | `none`                   | comportamento normal (rede real)                | —                                 |
 | `timeout`                | `TimeoutException` após ~600 ms                 | "Timeout"                         |
 | `noInternet`             | `SocketException` (igual offline real)          | "No internet"                     |
+| `unexpectedShape`        | `200 OK` com body `[{}]` → `FieldShapeException` no DTO | `Missing/invalid field: "id"`  |
 | `400` Bad Request        | `HttpResponse(400)` → `HttpException` no caller | "400 Bad Request"                 |
 | `401` Unauthorized       | idem                                            | "401 Unauthorized"                |
 | `403` Forbidden          | idem                                            | "403 Forbidden"                   |
@@ -249,11 +250,21 @@ o `ErrorMode` ativo. Modos disponíveis:
 
 A coluna "Como aparece na UI" é produzida pelo util
 [`errorMessageFor`](lib/utils/error_message.dart): mapeia
-`TimeoutException` / `SocketException` / `HttpException(statusCode)` para
-labels curtos. Status que não estão na tabela (ex.: 422, 418) caem no
-fallback `"<code> (unmapped status)"` em vez de mostrar
-`Instance of 'HttpException'` — o 422 está intencionalmente fora do mapa pra
-exercitar exatamente esse caminho.
+`TimeoutException` / `SocketException` / `HttpException(statusCode)` /
+`FieldShapeException` para labels curtos. Status que não estão na tabela
+(ex.: 422, 418) caem no fallback `"<code> (unmapped status)"` em vez de
+mostrar `Instance of 'HttpException'` — o 422 está intencionalmente fora do
+mapa pra exercitar exatamente esse caminho.
+
+Para erros de **shape de resposta** (backend mudou contrato e dropou um
+campo), as DTOs leem o JSON com
+[`jsonRequired<T>(json, key)`](lib/data/services/api/json_field.dart) em vez
+de `as T` cru. Quando o campo falta, o helper lança uma
+`FieldShapeException` carregando **o nome da chave**, e a UI mostra
+`Missing/invalid field: "email"` em vez de um genérico "Unexpected data
+shape". Isso só funciona porque o repository captura `Object` (não só
+`Exception`) — qualquer falha do data layer vira `Result.error` visível em
+vez de tela vazia.
 
 ---
 

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import '../data/services/api/api_client.dart';
+import '../data/services/api/json_field.dart';
 
 /// Maps low-level exceptions thrown by the data layer into short
 /// user-friendly labels for the UI.
@@ -19,6 +20,15 @@ String errorMessageFor(Object? error) {
     final reason = _reasonFor(code);
     return reason != null ? '$code $reason' : '$code (unmapped status)';
   }
+  // Thrown by `jsonRequired<T>` when the backend's response is missing a
+  // required field or the field has the wrong type — names the offending
+  // key so the message is actionable.
+  if (error is FieldShapeException) {
+    return 'Missing/invalid field: "${error.key}"';
+  }
+  // Bare `TypeError` is the safety net for any cast we forgot to route
+  // through `jsonRequired` — much rarer now, but handled.
+  if (error is TypeError) return 'Unexpected data shape';
   return error.toString();
 }
 

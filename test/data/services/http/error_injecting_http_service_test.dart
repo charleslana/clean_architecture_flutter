@@ -53,6 +53,20 @@ void main() {
       );
     });
 
+    test('unexpectedShape returns 200 OK with a malformed body', () async {
+      final injector = ErrorInjector()..mode = ErrorMode.unexpectedShape;
+      final service = ErrorInjectingHttpService(
+        inner: inner,
+        injector: injector,
+      );
+
+      final response = await service.get(Uri.parse('https://x.test/'));
+
+      expect(response.statusCode, 200);
+      expect(response.isSuccessful, isTrue);
+      expect(response.body, '[{}]');
+    });
+
     test('returns the matching status code for HTTP error modes', () async {
       const codeByMode = {
         ErrorMode.badRequest: 400,

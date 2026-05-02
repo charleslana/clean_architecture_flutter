@@ -9,6 +9,7 @@ enum ErrorMode {
   none('Off (real network)'),
   timeout('Timeout'),
   noInternet('No internet (SocketException)'),
+  unexpectedShape('200 OK with malformed body (parse error)'),
   badRequest('400 Bad Request'),
   unauthorized('401 Unauthorized'),
   forbidden('403 Forbidden'),
@@ -37,7 +38,10 @@ enum ErrorMode {
     ErrorMode.serverError => 500,
     ErrorMode.badGateway => 502,
     ErrorMode.serviceUnavailable => 503,
-    ErrorMode.none || ErrorMode.timeout || ErrorMode.noInternet => null,
+    ErrorMode.none ||
+    ErrorMode.timeout ||
+    ErrorMode.noInternet ||
+    ErrorMode.unexpectedShape => null,
   };
 }
 

@@ -17,7 +17,7 @@ class CommentsRepositoryRemote implements CommentsRepository {
           .map((dto) => dto.toDomain())
           .toList(growable: false);
       return Result.ok(comments);
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return Result.error(e);
     }
   }

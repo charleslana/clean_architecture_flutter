@@ -1,4 +1,5 @@
 import '../../../../domain/models/user.dart';
+import '../json_field.dart';
 
 class UserApiModel {
   const UserApiModel({
@@ -16,20 +17,24 @@ class UserApiModel {
   });
 
   factory UserApiModel.fromJson(Map<String, dynamic> json) {
-    final company = json['company'] as Map<String, dynamic>? ?? const {};
-    final address = json['address'] as Map<String, dynamic>? ?? const {};
+    final company =
+        jsonOptional<Map<String, dynamic>>(json, 'company') ?? const {};
+    final address =
+        jsonOptional<Map<String, dynamic>>(json, 'address') ?? const {};
     return UserApiModel(
-      id: json['id'] as int,
-      name: json['name'] as String,
-      username: json['username'] as String,
-      email: json['email'] as String,
-      phone: json['phone'] as String? ?? '',
-      website: json['website'] as String? ?? '',
-      companyName: company['name'] as String? ?? '',
-      companyCatchPhrase: company['catchPhrase'] as String? ?? '',
-      addressCity: address['city'] as String? ?? '',
-      addressStreet: address['street'] as String? ?? '',
-      addressSuite: address['suite'] as String? ?? '',
+      // Required fields — failure here means the backend changed the contract.
+      id: jsonRequired<int>(json, 'id'),
+      name: jsonRequired<String>(json, 'name'),
+      username: jsonRequired<String>(json, 'username'),
+      email: jsonRequired<String>(json, 'email'),
+      // Optional fields — gracefully default to empty if absent.
+      phone: jsonOptional<String>(json, 'phone') ?? '',
+      website: jsonOptional<String>(json, 'website') ?? '',
+      companyName: jsonOptional<String>(company, 'name') ?? '',
+      companyCatchPhrase: jsonOptional<String>(company, 'catchPhrase') ?? '',
+      addressCity: jsonOptional<String>(address, 'city') ?? '',
+      addressStreet: jsonOptional<String>(address, 'street') ?? '',
+      addressSuite: jsonOptional<String>(address, 'suite') ?? '',
     );
   }
 

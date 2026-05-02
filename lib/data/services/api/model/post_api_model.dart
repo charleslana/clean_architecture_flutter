@@ -1,4 +1,5 @@
 import '../../../../domain/models/post.dart';
+import '../json_field.dart';
 
 /// API model that maps directly to the JSON shape returned by the
 /// JSONPlaceholder `/posts` endpoint.
@@ -14,10 +15,10 @@ class PostApiModel {
   });
 
   factory PostApiModel.fromJson(Map<String, dynamic> json) => PostApiModel(
-    id: json['id'] as int,
-    userId: json['userId'] as int,
-    title: json['title'] as String,
-    body: json['body'] as String,
+    id: jsonRequired<int>(json, 'id'),
+    userId: jsonRequired<int>(json, 'userId'),
+    title: jsonRequired<String>(json, 'title'),
+    body: jsonRequired<String>(json, 'body'),
   );
 
   final int id;

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:clean_architecture_flutter/data/services/api/api_client.dart';
+import 'package:clean_architecture_flutter/data/services/api/json_field.dart';
 import 'package:clean_architecture_flutter/utils/error_message.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -45,6 +46,12 @@ void main() {
         );
       },
     );
+
+    test('FieldShapeException returns "Missing/invalid field: <key>"', () {
+      const error = FieldShapeException(key: 'email', expected: String);
+
+      expect(errorMessageFor(error), 'Missing/invalid field: "email"');
+    });
 
     test('unknown Exception returns its toString', () {
       expect(errorMessageFor(Exception('boom')), 'Exception: boom');

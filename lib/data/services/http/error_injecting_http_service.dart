@@ -35,6 +35,16 @@ class ErrorInjectingHttpService implements HttpService {
     if (mode == ErrorMode.noInternet) {
       throw const SocketException('Simulated: no internet');
     }
+    if (mode == ErrorMode.unexpectedShape) {
+      // 200 OK but the body has the wrong shape — `[{}]` is valid JSON, so
+      // `jsonDecode` succeeds, but the DTO's `as int` / `as String` casts
+      // throw `TypeError`. Exercises the parse-error path end-to-end.
+      return const HttpResponse(
+        statusCode: 200,
+        body: '[{}]',
+        headers: {'content-type': 'application/json'},
+      );
+    }
     final code = mode.statusCode!;
     return HttpResponse(
       statusCode: code,

@@ -1,4 +1,5 @@
 import '../../../../domain/models/comment.dart';
+import '../json_field.dart';
 
 class CommentApiModel {
   const CommentApiModel({
@@ -11,11 +12,11 @@ class CommentApiModel {
 
   factory CommentApiModel.fromJson(Map<String, dynamic> json) =>
       CommentApiModel(
-        id: json['id'] as int,
-        postId: json['postId'] as int,
-        name: json['name'] as String,
-        email: json['email'] as String,
-        body: json['body'] as String,
+        id: jsonRequired<int>(json, 'id'),
+        postId: jsonRequired<int>(json, 'postId'),
+        name: jsonRequired<String>(json, 'name'),
+        email: jsonRequired<String>(json, 'email'),
+        body: jsonRequired<String>(json, 'body'),
       );
 
   final int id;
