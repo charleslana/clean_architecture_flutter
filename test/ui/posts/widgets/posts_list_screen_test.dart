@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clean_architecture_flutter/data/repositories/auth/auth_repository.dart';
 import 'package:clean_architecture_flutter/data/repositories/posts/posts_repository.dart';
 import 'package:clean_architecture_flutter/domain/models/post.dart';
 import 'package:clean_architecture_flutter/ui/posts/view_models/posts_list_viewmodel.dart';
@@ -7,6 +8,8 @@ import 'package:clean_architecture_flutter/ui/posts/widgets/posts_list_screen.da
 import 'package:clean_architecture_flutter/utils/result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 import '../../../utils/fakes.dart';
 
@@ -22,16 +25,29 @@ class _PendingPostsRepository implements PostsRepository {
   Future<Result<Post>> getPost(int id) async => Result.error(Exception('n/a'));
 }
 
+/// Wraps a screen in the minimal context [DefaultAppBar] expects:
+///   - an [AuthRepository] in the Provider tree,
+///   - a [GoRouter] (so `GoRouterState.of(context)` works).
+Widget _harness(Widget screen) {
+  return ChangeNotifierProvider<AuthRepository>(
+    create: (_) => FakeAuthRepository(),
+    child: MaterialApp.router(
+      routerConfig: GoRouter(
+        initialLocation: '/',
+        routes: [GoRoute(path: '/', builder: (_, _) => screen)],
+      ),
+    ),
+  );
+}
+
 /// Widget test that wires the real ViewModel to a fake Repository, exactly
 /// like the architecture guide recommends: test the View end-to-end while
 /// keeping the data layer under our control.
 void main() {
   Future<void> pumpScreen(WidgetTester tester, FakePostsRepository repo) {
     return tester.pumpWidget(
-      MaterialApp(
-        home: PostsListScreen(
-          viewModel: PostsListViewModel(postsRepository: repo),
-        ),
+      _harness(
+        PostsListScreen(viewModel: PostsListViewModel(postsRepository: repo)),
       ),
     );
   }
@@ -41,8 +57,8 @@ void main() {
   ) async {
     final pending = _PendingPostsRepository();
     await tester.pumpWidget(
-      MaterialApp(
-        home: PostsListScreen(
+      _harness(
+        PostsListScreen(
           viewModel: PostsListViewModel(postsRepository: pending),
         ),
       ),

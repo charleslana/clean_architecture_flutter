@@ -4,6 +4,7 @@ import '../../../domain/models/comment.dart';
 import '../../../domain/models/post.dart';
 import '../../../utils/error_message.dart';
 import '../../../utils/result.dart';
+import '../../core/ui/default_app_bar.dart';
 import '../../core/ui/error_indicator.dart';
 import '../view_models/post_detail_viewmodel.dart';
 
@@ -15,7 +16,7 @@ class PostDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Post')),
+      appBar: const DefaultAppBar(title: 'Post'),
       body: ListenableBuilder(
         listenable: viewModel.loadPost,
         builder: (context, _) {

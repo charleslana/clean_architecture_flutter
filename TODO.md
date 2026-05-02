@@ -1,12 +1,13 @@
 # TODO — adicionar as features que faltam
 
-Este projeto consome `/posts`, `/users` e `/comments` da
-[JSONPlaceholder](https://jsonplaceholder.typicode.com/). Restam três
+Este projeto já consome `/posts`, `/users`, `/comments` e `/albums` (com
+CRUD completo via tela de Admin) da
+[JSONPlaceholder](https://jsonplaceholder.typicode.com/). Restam dois
 endpoints para completar a API:
 
-- [ ] `/albums`        — lista de álbuns (cada álbum pertence a um user)
-- [ ] `/photos`        — fotos (cada foto pertence a um álbum)
-- [ ] `/todos`         — to-dos (cada to-do pertence a um user)
+- [x] ~~`/albums` — lista de álbuns (cada álbum pertence a um user)~~ ✓ feito
+- [ ] `/photos`  — fotos (cada foto pertence a um álbum)
+- [ ] `/todos`   — to-dos (cada to-do pertence a um user)
 
 A intenção deste documento é servir como **guia para quem pegar a base** —
 qualquer feature nova segue exatamente o mesmo padrão. Use a feature
@@ -107,26 +108,16 @@ para a nova rota.
 
 ## Checklist específico por feature
 
-### `/albums` (modelo "lista simples")
-Endpoint: `GET https://jsonplaceholder.typicode.com/albums`
-Shape:
-```json
-{ "userId": 1, "id": 1, "title": "..." }
-```
-
-- [ ] `lib/domain/models/album.dart`
-- [ ] `lib/data/services/api/model/album_api_model.dart`
-- [ ] `ApiClient.getAlbums()`
-- [ ] `lib/data/repositories/albums/{albums_repository,albums_repository_remote}.dart`
-- [ ] DI em `dependencies.dart` (seção "Feature: albums")
-- [ ] `lib/ui/albums/view_models/albums_list_viewmodel.dart`
-- [ ] `lib/ui/albums/widgets/albums_list_screen.dart`
-- [ ] Constante de rota + `GoRoute` no `ShellRoute`
-- [ ] Tile na `HomeScreen`
-- [ ] Testes (fakes, repo, viewmodel)
-
-> Use `UsersListViewModel`/`UsersListScreen` como template — tem o mesmo
-> formato (lista simples sem detalhe).
+### ~~`/albums`~~ ✓ feito
+Implementado dentro de `lib/ui/admin/` + `lib/ui/albums/` como **CRUD
+completo** (GET list, GET one, POST, PATCH, PUT, DELETE) acessível pela
+tile "Admin" na home. Use como referência viva para os outros endpoints
+abaixo, especialmente:
+- O fluxo de criação em **2 passos** (form → confirmação) com
+  `AlbumDraft` passado via `extra` do go_router.
+- A tela de edição usando **path param** (`/admin/albums/:id/edit`).
+- Tests em [`test/data/repositories/albums/`](test/data/repositories/albums/)
+  cobrindo todos os verbos HTTP.
 
 ### `/photos` (modelo "lista grande, possivelmente paginada")
 Endpoint: `GET /photos` (5000 itens — listar todos é OK pra demo, mas

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../http/http_service.dart';
+import 'model/album_api_model.dart';
 import 'model/comment_api_model.dart';
 import 'model/post_api_model.dart';
 import 'model/user_api_model.dart';
@@ -73,6 +74,88 @@ class ApiClient {
     return list
         .map((dynamic e) => CommentApiModel.fromJson(e as Map<String, dynamic>))
         .toList(growable: false);
+  }
+
+  // ── Albums ───────────────────────────────────────────────────────────────
+  // Note: JSONPlaceholder's POST/PATCH/PUT/DELETE are *fake* — the server
+  // returns realistic responses but nothing is persisted. Useful to exercise
+  // the full HTTP surface (`HttpService.post/put/patch/delete`).
+
+  Future<List<AlbumApiModel>> getAlbums() async {
+    final response = await _http.get(_baseUrl.resolve('/albums'));
+    if (!response.isSuccessful) {
+      throw HttpException(response.statusCode, 'Failed to load albums');
+    }
+    final list = jsonDecode(response.body) as List<dynamic>;
+    return list
+        .map((dynamic e) => AlbumApiModel.fromJson(e as Map<String, dynamic>))
+        .toList(growable: false);
+  }
+
+  Future<AlbumApiModel> getAlbum(int id) async {
+    final response = await _http.get(_baseUrl.resolve('/albums/$id'));
+    if (!response.isSuccessful) {
+      throw HttpException(response.statusCode, 'Failed to load album $id');
+    }
+    return AlbumApiModel.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
+  }
+
+  Future<AlbumApiModel> createAlbum({
+    required int userId,
+    String? title,
+  }) async {
+    final body = <String, Object>{'userId': userId};
+    if (title != null) body['title'] = title;
+    final response = await _http.post(_baseUrl.resolve('/albums'), body: body);
+    if (!response.isSuccessful) {
+      throw HttpException(response.statusCode, 'Failed to create album');
+    }
+    return AlbumApiModel.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
+  }
+
+  Future<AlbumApiModel> patchAlbum(int id, {int? userId, String? title}) async {
+    final body = <String, Object>{};
+    if (userId != null) body['userId'] = userId;
+    if (title != null) body['title'] = title;
+    final response = await _http.patch(
+      _baseUrl.resolve('/albums/$id'),
+      body: body,
+    );
+    if (!response.isSuccessful) {
+      throw HttpException(response.statusCode, 'Failed to patch album $id');
+    }
+    return AlbumApiModel.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
+  }
+
+  Future<AlbumApiModel> replaceAlbum({
+    required int id,
+    required int userId,
+    required String title,
+  }) async {
+    final body = <String, Object>{'id': id, 'userId': userId, 'title': title};
+    final response = await _http.put(
+      _baseUrl.resolve('/albums/$id'),
+      body: body,
+    );
+    if (!response.isSuccessful) {
+      throw HttpException(response.statusCode, 'Failed to replace album $id');
+    }
+    return AlbumApiModel.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
+  }
+
+  Future<void> deleteAlbum(int id) async {
+    final response = await _http.delete(_baseUrl.resolve('/albums/$id'));
+    if (!response.isSuccessful) {
+      throw HttpException(response.statusCode, 'Failed to delete album $id');
+    }
   }
 }
 

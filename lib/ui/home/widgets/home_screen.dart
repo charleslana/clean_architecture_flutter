@@ -29,6 +29,13 @@ class HomeScreen extends StatelessWidget {
             subtitle: 'Lista de usuários do JSONPlaceholder',
             onTap: () => context.push(Routes.users),
           ),
+          const SizedBox(height: 12),
+          _HomeTile(
+            icon: Icons.admin_panel_settings_outlined,
+            title: 'Admin',
+            subtitle: 'CRUD de albums (POST/PUT/PATCH/DELETE — fake)',
+            onTap: () => context.push(Routes.adminHome),
+          ),
         ],
       ),
     );

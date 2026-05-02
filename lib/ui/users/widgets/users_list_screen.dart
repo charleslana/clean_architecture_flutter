@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../domain/models/user.dart';
 import '../../../utils/error_message.dart';
 import '../../../utils/result.dart';
+import '../../core/ui/default_app_bar.dart';
 import '../../core/ui/error_indicator.dart';
 import '../view_models/users_list_viewmodel.dart';
 
@@ -14,7 +15,7 @@ class UsersListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Users')),
+      appBar: const DefaultAppBar(title: 'Users'),
       body: ListenableBuilder(
         listenable: viewModel.load,
         builder: (context, _) {

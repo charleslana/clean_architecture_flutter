@@ -211,7 +211,11 @@ A pilha HTTP é composta como uma cadeia de decorators:
                     └──────┬───────┘
                            ▼
         ┌─────────────────────────────────────┐
-        │   ErrorInjectingHttpService         │   decorator (interceptor)
+        │   LoggingHttpService    (DEBUG)     │   loga verb/url/status/ms
+        └──────┬──────────────────────────────┘
+               ▼
+        ┌─────────────────────────────────────┐
+        │   ErrorInjectingHttpService (DEBUG) │   decorator (interceptor)
         │   (consulta o ErrorInjector)        │
         └──────┬──────────────────────────────┘
                ▼
@@ -220,6 +224,19 @@ A pilha HTTP é composta como uma cadeia de decorators:
         │   (impl real com package:http)      │   `package:http`
         └─────────────────────────────────────┘
 ```
+
+Os dois decorators marcados **(DEBUG)** só entram na cadeia quando
+`kDebugMode == true` — em release o `ApiClient` fala direto com o
+`HttpServiceHttp`, sem overhead. A composição condicional vive no
+[`dependencies.dart`](lib/config/dependencies.dart). O `ErrorBanner` na UI
+também só renderiza em debug ([router.dart](lib/config/router.dart)
+ShellRoute), e o GoRouter ganha em debug:
+- `debugLogDiagnostics: true` (logs internos do go_router)
+- um `NavigatorObserver` customizado (`_RouteLogger`) que imprime
+  `→ push /admin/albums`, `← pop /admin/albums (back to /admin)`, etc.
+
+Em release, `kDebugMode` é uma const compile-time → todos esses caminhos
+são tree-shaken. **Zero código de debug no APK final.**
 
 Em cima dessa camada existe um **`ShellRoute`** do `go_router` que renderiza
 um [`ErrorBanner`](lib/ui/core/ui/error_banner.dart) persistente em todas as
@@ -265,6 +282,134 @@ de `as T` cru. Quando o campo falta, o helper lança uma
 shape". Isso só funciona porque o repository captura `Object` (não só
 `Exception`) — qualquer falha do data layer vira `Result.error` visível em
 vez de tela vazia.
+
+### 4.7 State vs ViewModel — onde colocar cada coisa
+
+Régua prática para decidir onde mora cada pedaço de estado de uma tela:
+
+```
+Pergunta 1: Tem dispose() / é primitivo do framework Flutter?
+  → SIM: State (StatefulWidget)
+  → NÃO: vai pra pergunta 2
+
+Pergunta 2: É um valor lógico que o usuário "pensa" como estado da tela
+            (loading, erro, modo selecionado, visibilidade, item escolhido…)?
+  → SIM: ViewModel
+  → NÃO (é coordenação puramente de layout): pode ficar na State, reavaliar.
+```
+
+| Mora na **State** (`_LoginScreenState` etc.) | Mora na **ViewModel** |
+|---|---|
+| `TextEditingController` (precisa `dispose`) | Booleans que afetam render: `passwordVisible`, `isLoading`, `hasError` |
+| `GlobalKey<FormState>` (identidade do widget) | Listas/dados sendo exibidos |
+| `AnimationController`, `FocusNode`, `ScrollController` | Resultado de operações async (`Result<T>`) |
+| Coisas com lifecycle de widget tree | Modo de filtro, item selecionado, "step" atual |
+
+**Por que isso importa**:
+
+1. **Lifecycle correto**. Controllers e keys têm `dispose()` obrigatório que precisa rodar **junto com a desmontagem do widget**. A State faz isso automaticamente. Se a VM segurasse o controller, a VM ficaria acoplada ao ciclo de vida do Widget — sentido invertido (a VM deveria ser independente do widget tree).
+
+2. **Testabilidade**. A `LoginViewModel.passwordVisible` é testada em 7 linhas, sem `pumpWidget`. Se estivesse em `_LoginScreenState`, seriam ~25 linhas com `find.byIcon`, `tester.tap`, `pumpAndSettle`.
+
+3. **O guia oficial** explicitamente coloca "booleans for conditional rendering" como UI state da ViewModel. State é pra _widget tree primitives_.
+
+**Exemplo no projeto** — [`login_screen.dart`](lib/ui/auth/widgets/login_screen.dart) + [`login_viewmodel.dart`](lib/ui/auth/view_models/login_viewmodel.dart):
+
+```dart
+// State — porque tem dispose / é identidade do Form
+class _LoginScreenState extends State<LoginScreen> {
+  final _userController = TextEditingController(text: 'admin');  // ✓ State
+  final _passController = TextEditingController(text: 'admin');  // ✓ State
+  final _formKey = GlobalKey<FormState>();                       // ✓ State
+
+  @override
+  void dispose() {
+    _userController.dispose();
+    _passController.dispose();
+    super.dispose();
+  }
+}
+
+// ViewModel — porque é estado lógico que o usuário controla
+class LoginViewModel extends ChangeNotifier {
+  bool _passwordVisible = false;                                  // ✓ VM
+  bool get passwordVisible => _passwordVisible;
+  late final Command1<void, ({String username, String password})> login;  // ✓ VM
+
+  void togglePasswordVisibility() {
+    _passwordVisible = !_passwordVisible;
+    notifyListeners();
+  }
+}
+```
+
+**Edge case útil**: precisa do **valor** do TextField na VM (pra validação reativa, habilitar botão, etc.)? Não mova o controller pra VM — empurre só o **valor** via `onChanged`:
+
+```dart
+TextFormField(
+  controller: _passController,                  // controller continua na State
+  onChanged: viewModel.setPassword,             // valor vai pra VM
+)
+```
+
+VM tem a String (testável, reage a mudanças); State mantém o controller (com seu `dispose`). Mesma régua aplicada.
+
+---
+
+### 4.8 Autenticação (mock) e rotas protegidas
+
+A feature de admin (`/admin/*`) é gated por uma autenticação **mockada**
+(`admin` / `admin`) que vive como repositório listenable em
+[`auth_repository.dart`](lib/data/repositories/auth/auth_repository.dart):
+
+```dart
+abstract class AuthRepository extends ChangeNotifier {
+  bool get isAuthenticated;
+  String? get username;
+  Future<Result<void>> login({...});
+  void logout();
+}
+```
+
+Sendo um `ChangeNotifier`, ele plugga direto no `refreshListenable` do
+GoRouter. Isso liga **dois mecanismos**:
+
+| Mecanismo | O que faz |
+|---|---|
+| `refreshListenable: authRepository` | Toda vez que `notifyListeners()` é chamado (login/logout), o GoRouter **re-roda o `redirect`** automaticamente. |
+| `redirect: (context, state) { ... }` | Função global que decide se a navegação atual é permitida; se não, retorna o caminho pra onde mandar o usuário. |
+
+O `redirect` em [router.dart](lib/config/router.dart):
+
+```dart
+redirect: (context, state) {
+  final goingTo = state.matchedLocation;
+  final isProtected = goingTo.startsWith(Routes.adminHome);
+  final isLogin = goingTo == Routes.login;
+
+  if (isProtected && !authRepository.isAuthenticated) {
+    return '${Routes.login}?from=$goingTo';      // gate
+  }
+  if (isLogin && authRepository.isAuthenticated) {
+    final from = state.uri.queryParameters['from'];
+    return from ?? Routes.adminHome;             // bounce-back após login
+  }
+  return null;                                   // permitir
+}
+```
+
+Fluxo completo: usuário toca em "Admin" → `context.push('/admin')` → redirect
+para `/login?from=/admin` → preenche o form → `_authRepository.login(...)` →
+`notifyListeners()` → `refreshListenable` dispara → redirect re-avalia → vê
+`isAuthenticated == true` na rota `/login?from=/admin` → retorna `/admin`.
+**Nem o LoginScreen nem nenhuma tela admin precisa fazer `context.go(...)`
+manualmente** — o roteamento é decidido pelo redirect global em um lugar só.
+
+A [`DefaultAppBar`](lib/ui/core/ui/default_app_bar.dart) lê o
+`AuthRepository` via `context.watch` e troca o ícone entre login/logout
+automaticamente. Logout dispara o mesmo ciclo no sentido inverso: se o
+usuário estiver em `/admin/*` quando deslogar, o redirect global o expulsa
+de volta pra `/login`.
 
 ---
 

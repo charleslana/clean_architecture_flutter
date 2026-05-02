@@ -1,3 +1,4 @@
+import 'package:clean_architecture_flutter/data/repositories/auth/auth_repository.dart';
 import 'package:clean_architecture_flutter/data/repositories/comments/comments_repository.dart';
 import 'package:clean_architecture_flutter/data/repositories/posts/posts_repository.dart';
 import 'package:clean_architecture_flutter/data/repositories/users/users_repository.dart';
@@ -141,6 +142,58 @@ class FakeCommentsRepository implements CommentsRepository {
     return Result.ok(
       comments.where((c) => c.postId == postId).toList(growable: false),
     );
+  }
+}
+
+/// In-memory [AuthRepository] for tests. Identical contract to the real
+/// `AuthRepositoryMock`, but without the artificial network delay so tests
+/// don't have to pump 400ms of timer.
+class FakeAuthRepository extends AuthRepository {
+  FakeAuthRepository({
+    bool isAuthenticated = false,
+    String? username,
+    this.acceptedUsername = 'admin',
+    this.acceptedPassword = 'admin',
+  }) : _isAuthenticated = isAuthenticated,
+       _username = username;
+
+  final String acceptedUsername;
+  final String acceptedPassword;
+
+  bool _isAuthenticated;
+  String? _username;
+
+  int loginCalls = 0;
+  int logoutCalls = 0;
+
+  @override
+  bool get isAuthenticated => _isAuthenticated;
+
+  @override
+  String? get username => _username;
+
+  @override
+  Future<Result<void>> login({
+    required String username,
+    required String password,
+  }) async {
+    loginCalls++;
+    if (username == acceptedUsername && password == acceptedPassword) {
+      _isAuthenticated = true;
+      _username = username;
+      notifyListeners();
+      return const Result.ok(null);
+    }
+    return const Result<void>.error(InvalidCredentialsException());
+  }
+
+  @override
+  void logout() {
+    logoutCalls++;
+    if (!_isAuthenticated) return;
+    _isAuthenticated = false;
+    _username = null;
+    notifyListeners();
   }
 }
 

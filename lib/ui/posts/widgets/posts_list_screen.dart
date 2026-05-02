@@ -5,6 +5,7 @@ import '../../../config/routes.dart';
 import '../../../domain/models/post.dart';
 import '../../../utils/error_message.dart';
 import '../../../utils/result.dart';
+import '../../core/ui/default_app_bar.dart';
 import '../../core/ui/error_indicator.dart';
 import '../view_models/posts_list_viewmodel.dart';
 
@@ -22,7 +23,7 @@ class PostsListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Posts')),
+      appBar: const DefaultAppBar(title: 'Posts'),
       body: ListenableBuilder(
         listenable: viewModel.load,
         builder: (context, _) {

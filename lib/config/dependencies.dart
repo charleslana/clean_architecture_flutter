@@ -1,6 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
+import '../data/repositories/albums/albums_repository.dart';
+import '../data/repositories/albums/albums_repository_remote.dart';
+import '../data/repositories/auth/auth_repository.dart';
+import '../data/repositories/auth/auth_repository_mock.dart';
 import '../data/repositories/comments/comments_repository.dart';
 import '../data/repositories/comments/comments_repository_remote.dart';
 import '../data/repositories/posts/posts_repository.dart';
@@ -12,6 +17,7 @@ import '../data/services/http/error_injecting_http_service.dart';
 import '../data/services/http/error_injector.dart';
 import '../data/services/http/http_service.dart';
 import '../data/services/http/http_service_http.dart';
+import '../data/services/http/logging_http_service.dart';
 
 /// Dependency-injection wiring for the app.
 ///
@@ -36,12 +42,30 @@ List<SingleChildWidget> get providersRemote => [
   // ── Debug helper (drives the ErrorBanner UI and the decorator below) ─
   ChangeNotifierProvider<ErrorInjector>(create: (_) => ErrorInjector()),
 
+  // ── Auth (mock; gates /admin/* routes via go_router redirect) ────────
+  ChangeNotifierProvider<AuthRepository>(create: (_) => AuthRepositoryMock()),
+
   // ── Shared services ──────────────────────────────────────────────────
+  // HTTP chain (top → bottom):
+  //   ApiClient
+  //     → LoggingHttpService           (debug only — logs verb/url/status/ms)
+  //     → ErrorInjectingHttpService    (debug only — driven by ErrorBanner)
+  //     → HttpServiceHttp              (real network, package:http)
+  //
+  // In release, `kDebugMode` is `false` at compile time, both decorators are
+  // tree-shaken, and ApiClient talks straight to HttpServiceHttp.
   Provider<HttpService>(
-    create: (context) => ErrorInjectingHttpService(
-      inner: HttpServiceHttp(),
-      injector: context.read<ErrorInjector>(),
-    ),
+    create: (context) {
+      HttpService service = HttpServiceHttp();
+      if (kDebugMode) {
+        service = ErrorInjectingHttpService(
+          inner: service,
+          injector: context.read<ErrorInjector>(),
+        );
+        service = LoggingHttpService(inner: service);
+      }
+      return service;
+    },
     dispose: (_, service) => service.close(),
   ),
   Provider<ApiClient>(
@@ -64,5 +88,11 @@ List<SingleChildWidget> get providersRemote => [
   Provider<UsersRepository>(
     create: (context) =>
         UsersRepositoryRemote(apiClient: context.read<ApiClient>()),
+  ),
+
+  // ── Feature: albums (admin CRUD) ─────────────────────────────────────
+  Provider<AlbumsRepository>(
+    create: (context) =>
+        AlbumsRepositoryRemote(apiClient: context.read<ApiClient>()),
   ),
 ];
