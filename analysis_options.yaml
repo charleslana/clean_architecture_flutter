@@ -1,0 +1,50 @@
+# Lint configuration based on the rules used by the Flutter team in the
+# architecture sample (Compass App):
+# https://github.com/flutter/samples/blob/main/compass_app/app/analysis_options.yaml
+#
+# The base set is `flutter_lints`, complemented by extra rules that the Flutter
+# team enables to enforce the architecture guide recommendations.
+
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  errors:
+    # Treat missing required parameters as a hard error.
+    missing_required_param: error
+    # Treat missing returns as a hard error.
+    missing_return: error
+
+linter:
+  rules:
+    # Style / readability
+    - always_declare_return_types
+    - avoid_dynamic_calls
+    - avoid_empty_else
+    - avoid_redundant_argument_values
+    - avoid_returning_null_for_void
+    - avoid_unused_constructor_parameters
+    - cancel_subscriptions
+    - close_sinks
+    - prefer_const_constructors
+    - prefer_const_constructors_in_immutables
+    - prefer_const_declarations
+    - prefer_const_literals_to_create_immutables
+    - prefer_final_locals
+    - prefer_final_in_for_each
+    - prefer_single_quotes
+    - sort_child_properties_last
+    - unawaited_futures
+    - unnecessary_await_in_return
+    - unnecessary_lambdas
+    - unnecessary_late
+    - unnecessary_parenthesis
+    - use_super_parameters
+
+    # Architecture / safety
+    - require_trailing_commas
+    - throw_in_finally
+    - use_build_context_synchronously
