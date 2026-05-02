@@ -6,10 +6,6 @@ import 'model/comment_api_model.dart';
 import 'model/post_api_model.dart';
 import 'model/user_api_model.dart';
 
-/// Stateless service that wraps the JSONPlaceholder REST API.
-///
-/// Talks to the network through [HttpService] (not `package:http` directly),
-/// so swapping HTTP libraries is a single-file change.
 class ApiClient {
   ApiClient({required HttpService httpService, Uri? baseUrl})
     : _http = httpService,
@@ -75,11 +71,6 @@ class ApiClient {
         .map((dynamic e) => CommentApiModel.fromJson(e as Map<String, dynamic>))
         .toList(growable: false);
   }
-
-  // ── Albums ───────────────────────────────────────────────────────────────
-  // Note: JSONPlaceholder's POST/PATCH/PUT/DELETE are *fake* — the server
-  // returns realistic responses but nothing is persisted. Useful to exercise
-  // the full HTTP surface (`HttpService.post/put/patch/delete`).
 
   Future<List<AlbumApiModel>> getAlbums() async {
     final response = await _http.get(_baseUrl.resolve('/albums'));

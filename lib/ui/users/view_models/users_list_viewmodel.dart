@@ -28,4 +28,10 @@ class UsersListViewModel extends ChangeNotifier {
     notifyListeners();
     return result;
   }
+
+  @override
+  void dispose() {
+    load.dispose();
+    super.dispose();
+  }
 }

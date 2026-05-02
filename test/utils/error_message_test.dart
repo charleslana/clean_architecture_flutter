@@ -35,7 +35,6 @@ void main() {
     test(
       'UNMAPPED status codes fall through to "<code> (unmapped status)"',
       () {
-        // 422 is intentionally not in the table — exercises the fallback.
         expect(
           errorMessageFor(const HttpException(422, 'm')),
           '422 (unmapped status)',

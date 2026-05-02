@@ -4,11 +4,6 @@ import 'package:http/http.dart' as http;
 
 import 'http_service.dart';
 
-/// [HttpService] backed by `package:http`.
-///
-/// **This is the only file in the app that imports `package:http`.** To swap
-/// for `dio`/`chopper`/anything else, write a sibling implementation and
-/// register it in `lib/config/dependencies.dart` — no other file changes.
 class HttpServiceHttp implements HttpService {
   HttpServiceHttp({http.Client? client}) : _client = client ?? http.Client();
 

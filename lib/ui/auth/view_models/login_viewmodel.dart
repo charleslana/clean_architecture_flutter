@@ -14,10 +14,6 @@ class LoginViewModel extends ChangeNotifier {
 
   late final Command1<void, ({String username, String password})> login;
 
-  // ── UI state ────────────────────────────────────────────────────────────
-  // Whether the password field is rendered visible (eye toggle). Lives here
-  // (not in the View's State) because the architecture guide places UI state
-  // in the ViewModel — keeps the View dumb and the toggle unit-testable.
   bool _passwordVisible = false;
   bool get passwordVisible => _passwordVisible;
 
@@ -31,5 +27,11 @@ class LoginViewModel extends ChangeNotifier {
       username: creds.username,
       password: creds.password,
     );
+  }
+
+  @override
+  void dispose() {
+    login.dispose();
+    super.dispose();
   }
 }

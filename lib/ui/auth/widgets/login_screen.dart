@@ -6,11 +6,6 @@ import '../../../utils/error_message.dart';
 import '../../../utils/result.dart';
 import '../view_models/login_viewmodel.dart';
 
-/// Login screen for the mock auth.
-///
-/// On successful login the screen explicitly navigates to [from] (the URL
-/// the user was originally trying to reach when the redirect bounced them
-/// here) — falling back to `/` when there is no `from`.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, required this.viewModel, this.from});
 
@@ -22,7 +17,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // Pre-fill with the mock credentials so it's obvious how to "log in".
   final _userController = TextEditingController(text: 'admin');
   final _passController = TextEditingController(text: 'admin');
   final _formKey = GlobalKey<FormState>();
@@ -59,10 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 validator: (v) => v == null || v.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 16),
-              // Listens to the ViewModel itself so it rebuilds whenever
-              // `passwordVisible` flips. The TextEditingController is kept
-              // outside the builder to preserve the user's text across
-              // rebuilds.
+
               ListenableBuilder(
                 listenable: widget.viewModel,
                 builder: (context, _) {
@@ -143,8 +134,6 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (widget.viewModel.login.completed) {
-      // Send the user back to where they were heading when the gate kicked
-      // in. If they came here directly (no redirect), default to `/`.
       context.go(widget.from ?? Routes.home);
     }
   }

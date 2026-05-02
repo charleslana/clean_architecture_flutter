@@ -1,11 +1,6 @@
 import '../../../../domain/models/post.dart';
 import '../json_field.dart';
 
-/// API model that maps directly to the JSON shape returned by the
-/// JSONPlaceholder `/posts` endpoint.
-///
-/// The architecture guide recommends keeping the API model separate from the
-/// domain model so that backend changes do not leak into the UI/business code.
 class PostApiModel {
   const PostApiModel({
     required this.id,

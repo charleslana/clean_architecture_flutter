@@ -7,15 +7,6 @@ import '../../../domain/models/post.dart';
 import '../../../utils/command.dart';
 import '../../../utils/result.dart';
 
-/// ViewModel for the post detail screen.
-///
-/// Two independent commands run in parallel from the constructor:
-///   - [loadPost] fetches the post itself,
-///   - [loadComments] fetches its comments.
-///
-/// Splitting them lets the View show "post ready, comments still loading" —
-/// a nicer perceived performance than waiting for both. Each command also
-/// has its own error state, so a comments failure doesn't hide the post.
 class PostDetailViewModel extends ChangeNotifier {
   PostDetailViewModel({
     required PostsRepository postsRepository,
@@ -57,5 +48,12 @@ class PostDetailViewModel extends ChangeNotifier {
     }
     notifyListeners();
     return result;
+  }
+
+  @override
+  void dispose() {
+    loadPost.dispose();
+    loadComments.dispose();
+    super.dispose();
   }
 }

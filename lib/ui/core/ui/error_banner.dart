@@ -3,13 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../../data/services/http/error_injector.dart';
 
-/// Persistent debug strip rendered by the [ShellRoute] on top of every
-/// screen. Lets the user pick the active [ErrorMode] at runtime so the View's
-/// error handling can be exercised against simulated 4xx/5xx, timeouts and
-/// "no internet" — without ever leaving the app.
-///
-/// After picking an error, pull-to-refresh on a list (or re-enter the
-/// screen) to trigger a new request and watch the error path light up.
 class ErrorBanner extends StatelessWidget {
   const ErrorBanner({super.key});
 

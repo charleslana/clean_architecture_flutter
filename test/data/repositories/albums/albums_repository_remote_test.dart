@@ -7,8 +7,6 @@ import 'package:clean_architecture_flutter/domain/models/album.dart';
 import 'package:clean_architecture_flutter/utils/result.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Reusable fake `HttpService` that records every call (so assertions can
-/// check verb + body + path) and returns canned responses by URL.
 class _RecordingHttpService implements HttpService {
   _RecordingHttpService(this._handler);
 
@@ -106,7 +104,7 @@ void main() {
       final album = (result as Ok<Album>).value;
       expect(album.id, 101);
       expect(album.userId, 7);
-      expect(album.title, ''); // server didn't echo title back
+      expect(album.title, '');
 
       final call = http.calls.single;
       expect(call.verb, 'POST');
@@ -116,8 +114,6 @@ void main() {
 
     test('patchAlbum PATCHes only the fields supplied', () async {
       final http = _RecordingHttpService((verb, url, body) async {
-        // Echo back what we received (with id) — a realistic JSONPlaceholder
-        // response for PATCH.
         final received = body as Map<String, Object>;
         final id = int.parse(url.pathSegments.last);
         return HttpResponse(

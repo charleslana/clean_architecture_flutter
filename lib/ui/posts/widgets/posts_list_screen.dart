@@ -9,12 +9,6 @@ import '../../core/ui/default_app_bar.dart';
 import '../../core/ui/error_indicator.dart';
 import '../view_models/posts_list_viewmodel.dart';
 
-/// Posts list View.
-///
-/// Per the architecture guide, the View:
-///   - receives a single [PostsListViewModel] via constructor injection,
-///   - renders state read from the ViewModel,
-///   - delegates user actions to ViewModel commands (no business logic here).
 class PostsListScreen extends StatelessWidget {
   const PostsListScreen({super.key, required this.viewModel});
 

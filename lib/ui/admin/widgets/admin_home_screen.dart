@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../../../config/routes.dart';
 import '../../core/ui/default_app_bar.dart';
 
-/// Admin entry point. Currently lists Albums; future tiles can plug here.
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({super.key});
 

@@ -8,14 +8,6 @@ import 'package:clean_architecture_flutter/domain/models/post.dart';
 import 'package:clean_architecture_flutter/domain/models/user.dart';
 import 'package:clean_architecture_flutter/utils/result.dart';
 
-/// Hand-written fakes used across the test suite.
-///
-/// The Flutter architecture guide explicitly prefers fakes over generated
-/// mocks because they:
-///   - read like normal Dart code,
-///   - keep the test focused on behaviour, not on stubbing,
-///   - require no extra dependencies (no `mockito`/`mocktail`/build_runner).
-
 const Post fakePost1 = Post(
   id: 1,
   userId: 10,
@@ -145,9 +137,6 @@ class FakeCommentsRepository implements CommentsRepository {
   }
 }
 
-/// In-memory [AuthRepository] for tests. Identical contract to the real
-/// `AuthRepositoryMock`, but without the artificial network delay so tests
-/// don't have to pump 400ms of timer.
 class FakeAuthRepository extends AuthRepository {
   FakeAuthRepository({
     bool isAuthenticated = false,
@@ -197,8 +186,6 @@ class FakeAuthRepository extends AuthRepository {
   }
 }
 
-/// Minimal in-memory fake of [HttpService] used by repository tests so they
-/// don't depend on `package:http` directly.
 class FakeHttpService implements HttpService {
   FakeHttpService({required this.onGet});
 

@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Generic error placeholder reused by every screen.
-///
-/// Following the architecture guide: Views only contain layout/presentation
-/// logic — the decision to display this widget belongs to the screen, but the
-/// "what does an error look like?" detail is centralized here.
 class ErrorIndicator extends StatelessWidget {
   const ErrorIndicator({
     super.key,

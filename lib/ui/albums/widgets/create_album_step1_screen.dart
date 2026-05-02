@@ -7,12 +7,6 @@ import '../../../config/routes.dart';
 import '../../core/ui/default_app_bar.dart';
 import '../album_draft.dart';
 
-/// Step 1 of the create flow — pure form.
-///
-/// No ViewModel: this screen does **no** async work, only collects input.
-/// On submit it pushes step 2 carrying an [AlbumDraft] via go_router's
-/// `extra` parameter (in-memory typed payload — no URL serialization).
-/// Step 2 is where the actual POST happens, after the user confirms.
 class CreateAlbumStep1Screen extends StatefulWidget {
   const CreateAlbumStep1Screen({super.key});
 
@@ -96,9 +90,6 @@ class _CreateAlbumStep1ScreenState extends State<CreateAlbumStep1Screen> {
       title: _titleController.text.trim(),
     );
 
-    // Push step 2 with the draft as `extra`. We don't `await` the push —
-    // its Future only completes when step 2 pops, and we don't need to
-    // react to that here (see explanation of `unawaited` in the chat).
     unawaited(context.push(Routes.adminAlbumsCreateStep2, extra: draft));
   }
 }

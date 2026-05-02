@@ -5,12 +5,6 @@ import '../../../domain/models/album.dart';
 import '../../../utils/command.dart';
 import '../../../utils/result.dart';
 
-/// Drives the albums admin list. Two commands:
-///   - [load] (`Command0<List<Album>>`) — fetches the list (auto-runs on
-///     construction, also re-runnable for pull-to-refresh).
-///   - [delete] (`Command1<void, int>`) — deletes by id, then re-runs [load]
-///     so the list reflects the change. (The fake JSONPlaceholder won't
-///     actually drop the row, but the cycle is exercised end-to-end.)
 class AlbumsListViewModel extends ChangeNotifier {
   AlbumsListViewModel({required AlbumsRepository albumsRepository})
     : _albumsRepository = albumsRepository {
@@ -40,9 +34,15 @@ class AlbumsListViewModel extends ChangeNotifier {
   Future<Result<void>> _delete(int id) async {
     final result = await _albumsRepository.deleteAlbum(id);
     if (result is Ok<void>) {
-      // Reload so the list reflects the operation.
       await load.execute();
     }
     return result;
+  }
+
+  @override
+  void dispose() {
+    load.dispose();
+    delete.dispose();
+    super.dispose();
   }
 }

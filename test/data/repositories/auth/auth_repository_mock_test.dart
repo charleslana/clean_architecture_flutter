@@ -39,7 +39,7 @@ void main() {
           isA<InvalidCredentialsException>(),
         );
         expect(repo.isAuthenticated, isFalse);
-        expect(notifyCount, 0); // no state change → no notify
+        expect(notifyCount, 0);
       },
     );
 
@@ -55,7 +55,6 @@ void main() {
       expect(repo.username, isNull);
       expect(notifyCount, 1);
 
-      // Calling logout again is a no-op (no listeners notified twice).
       repo.logout();
       expect(notifyCount, 1);
     });

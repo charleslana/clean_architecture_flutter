@@ -1,9 +1,3 @@
-/// Transport-agnostic abstraction over HTTP.
-///
-/// Every HTTP call in the app — `ApiClient`, repositories, error injection —
-/// goes through this interface. Switching from `package:http` to `dio`,
-/// `chopper`, or any other library is a single-file change: replace the
-/// implementation, leave the rest of the codebase untouched.
 abstract interface class HttpService {
   Future<HttpResponse> get(Uri url, {Map<String, String>? headers});
 
@@ -34,7 +28,6 @@ abstract interface class HttpService {
   void close();
 }
 
-/// Transport-agnostic HTTP response — what the rest of the app sees.
 class HttpResponse {
   const HttpResponse({
     required this.statusCode,

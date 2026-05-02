@@ -450,8 +450,9 @@ regras usadas pelo time do Flutter no Compass App
 ```bash
 flutter pub get
 flutter run
+dart format .     # padroniza estilo (rode antes de qualquer commit)
 flutter analyze   # esperado: No issues found!
-flutter test      # 16 testes, todos verdes
+flutter test      # 54 testes, todos verdes
 ```
 
 A primeira tela é a Home (`/`); a partir dela navega-se para `/posts` ou

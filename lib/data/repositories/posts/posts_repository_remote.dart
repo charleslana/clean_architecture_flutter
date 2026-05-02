@@ -3,11 +3,6 @@ import '../../../utils/result.dart';
 import '../../services/api/api_client.dart';
 import 'posts_repository.dart';
 
-/// Remote implementation of [PostsRepository] that:
-///   - delegates network calls to [ApiClient],
-///   - converts API DTOs to domain models,
-///   - converts thrown exceptions into [Result.error] so the UI never has to
-///     deal with `try/catch`.
 class PostsRepositoryRemote implements PostsRepository {
   PostsRepositoryRemote({required ApiClient apiClient})
     : _apiClient = apiClient;

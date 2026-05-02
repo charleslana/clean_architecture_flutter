@@ -5,12 +5,6 @@ import '../../../domain/models/post.dart';
 import '../../../utils/command.dart';
 import '../../../utils/result.dart';
 
-/// ViewModel for the posts list screen.
-///
-/// Responsibilities (per the architecture guide):
-///   1. Retrieve data from the repository.
-///   2. Hold UI state (the list of [Post]s).
-///   3. Expose [Command]s the View can call in response to user actions.
 class PostsListViewModel extends ChangeNotifier {
   PostsListViewModel({required PostsRepository postsRepository})
     : _postsRepository = postsRepository {
@@ -34,5 +28,11 @@ class PostsListViewModel extends ChangeNotifier {
     }
     notifyListeners();
     return result;
+  }
+
+  @override
+  void dispose() {
+    load.dispose();
+    super.dispose();
   }
 }

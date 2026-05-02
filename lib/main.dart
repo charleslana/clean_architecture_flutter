@@ -18,8 +18,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // Built once with the AuthRepository read from the surrounding providers,
-  // so the router's redirect/refreshListenable can react to login/logout.
   late final GoRouter _router = buildRouter(context.read<AuthRepository>());
 
   @override

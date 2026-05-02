@@ -1,10 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-/// Pre-defined error scenarios the [ErrorInjector] can simulate at runtime.
-///
-/// Used by [ErrorInjectingHttpService] (the http-layer decorator) to short-
-/// circuit the real network call with a deterministic failure, so the UI's
-/// error handling can be exercised without flaky reproduction in production.
 enum ErrorMode {
   none('Off (real network)'),
   timeout('Timeout'),
@@ -26,8 +21,6 @@ enum ErrorMode {
 
   bool get isActive => this != ErrorMode.none;
 
-  /// HTTP status code for status-based errors, `null` for transport-level
-  /// failures (timeout, no internet) and for [ErrorMode.none].
   int? get statusCode => switch (this) {
     ErrorMode.badRequest => 400,
     ErrorMode.unauthorized => 401,
@@ -45,9 +38,6 @@ enum ErrorMode {
   };
 }
 
-/// Holds the currently-active [ErrorMode]. Listened to by the debug banner
-/// (so the dropdown reflects the live state) and read by
-/// [ErrorInjectingHttpService] before each request.
 class ErrorInjector extends ChangeNotifier {
   ErrorMode _mode = ErrorMode.none;
 

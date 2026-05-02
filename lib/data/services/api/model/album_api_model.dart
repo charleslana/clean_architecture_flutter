@@ -11,8 +11,7 @@ class AlbumApiModel {
   factory AlbumApiModel.fromJson(Map<String, dynamic> json) => AlbumApiModel(
     id: jsonRequired<int>(json, 'id'),
     userId: jsonRequired<int>(json, 'userId'),
-    // The fake API may return the album right after a POST without a
-    // title (since step 1 of the create flow only sends `userId`).
+
     title: jsonOptional<String>(json, 'title') ?? '',
   );
 

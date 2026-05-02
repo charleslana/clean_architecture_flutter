@@ -3,9 +3,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../config/routes.dart';
 
-/// Home is purely presentational: no ViewModel, no data calls — just a menu of
-/// destinations. Sub-screens are reached with `context.push` so the
-/// [Scaffold] auto-adds a back arrow that walks the stack back to here.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 

@@ -26,7 +26,7 @@ void main() {
 
       expect(vm.login.error, isTrue);
       expect(repo.isAuthenticated, isFalse);
-      // The error carries the typed exception so the UI can format it.
+
       final result = vm.login.result;
       expect(result, isNotNull);
       expect((result! as dynamic).error, isA<InvalidCredentialsException>());

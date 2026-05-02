@@ -59,10 +59,6 @@ void main() {
     test(
       'getUsers returns Error on PARSE failure (backend dropped a required field)',
       () async {
-        // Server responded 200 OK but `email` is missing — `as String` in the
-        // DTO will throw a TypeError. Without the broadened `on Object` catch
-        // in the repository, this would crash silently and the UI would just
-        // show an empty list.
         final http = FakeHttpService(
           onGet: (_) async => const HttpResponse(
             statusCode: 200,
@@ -85,8 +81,7 @@ void main() {
 
         expect(result, isA<Error<List<User>>>());
         final error = (result as Error<List<User>>).error;
-        // The DTO uses `jsonRequired<T>` so the failure carries the key name
-        // — not just a bare TypeError — and the UI can surface it.
+
         expect(error, isA<FieldShapeException>());
         expect((error as FieldShapeException).key, 'email');
       },

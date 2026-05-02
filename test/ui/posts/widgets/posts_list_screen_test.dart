@@ -13,8 +13,6 @@ import 'package:provider/provider.dart';
 
 import '../../../utils/fakes.dart';
 
-/// A repository whose getPosts() future is controlled by the test, so we can
-/// observe the "running" UI state before completing the request.
 class _PendingPostsRepository implements PostsRepository {
   final Completer<Result<List<Post>>> completer = Completer();
 
@@ -25,9 +23,6 @@ class _PendingPostsRepository implements PostsRepository {
   Future<Result<Post>> getPost(int id) async => Result.error(Exception('n/a'));
 }
 
-/// Wraps a screen in the minimal context [DefaultAppBar] expects:
-///   - an [AuthRepository] in the Provider tree,
-///   - a [GoRouter] (so `GoRouterState.of(context)` works).
 Widget _harness(Widget screen) {
   return ChangeNotifierProvider<AuthRepository>(
     create: (_) => FakeAuthRepository(),
@@ -40,9 +35,6 @@ Widget _harness(Widget screen) {
   );
 }
 
-/// Widget test that wires the real ViewModel to a fake Repository, exactly
-/// like the architecture guide recommends: test the View end-to-end while
-/// keeping the data layer under our control.
 void main() {
   Future<void> pumpScreen(WidgetTester tester, FakePostsRepository repo) {
     return tester.pumpWidget(
@@ -66,7 +58,6 @@ void main() {
 
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-    // Let the future resolve so the test exits cleanly.
     pending.completer.complete(const Result.ok([]));
     await tester.pumpAndSettle();
   });

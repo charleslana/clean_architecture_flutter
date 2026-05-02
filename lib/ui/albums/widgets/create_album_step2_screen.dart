@@ -8,15 +8,6 @@ import '../../../utils/result.dart';
 import '../../core/ui/default_app_bar.dart';
 import '../view_models/create_album_step2_viewmodel.dart';
 
-/// Step 2 — confirmation screen.
-///
-/// Shows the values the user typed in step 1 (carried in via the
-/// [AlbumDraft] from `state.extra`). The "Confirm" button triggers the POST.
-///
-/// Pattern in `_onSubmit`: `await create.execute()` → check `completed` → only
-/// then navigate. That's "como a tela espera a resposta da API antes de
-/// seguir": the View awaits the [Command0], inspects its outcome, and decides
-/// where to go (or not).
 class CreateAlbumStep2Screen extends StatelessWidget {
   const CreateAlbumStep2Screen({super.key, required this.viewModel});
 
@@ -90,21 +81,12 @@ class CreateAlbumStep2Screen extends StatelessWidget {
   }
 
   Future<void> _onSubmit(BuildContext context) async {
-    // ── HERE'S THE GATE ─────────────────────────────────────────────────
-    // 1. Trigger the POST and AWAIT its completion.
     await viewModel.create.execute();
     if (!context.mounted) return;
 
-    // 2. Inspect the command's state.
     if (viewModel.create.completed) {
-      // 3. On success: `go` (not `push`) → router replaces the location and
-      //    rebuilds AlbumsList from scratch, which re-runs the load command,
-      //    so the list comes back fresh — even though JSONPlaceholder didn't
-      //    really persist anything.
       context.go(Routes.adminAlbums);
     }
-    // On error, the ListenableBuilder already shows the failure under the
-    // button — we just don't navigate.
   }
 }
 

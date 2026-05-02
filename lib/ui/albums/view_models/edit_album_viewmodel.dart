@@ -5,11 +5,6 @@ import '../../../domain/models/album.dart';
 import '../../../utils/command.dart';
 import '../../../utils/result.dart';
 
-/// ViewModel for the single-screen edit flow (PUT — full replace).
-///
-/// Two commands:
-///   - [load] — fetches the album by id so the form starts populated.
-///   - [save] — replaces the album with whatever the user typed (PUT).
 class EditAlbumViewModel extends ChangeNotifier {
   EditAlbumViewModel({
     required AlbumsRepository albumsRepository,
@@ -40,5 +35,12 @@ class EditAlbumViewModel extends ChangeNotifier {
 
   Future<Result<Album>> _save(Album album) async {
     return _albumsRepository.replaceAlbum(album);
+  }
+
+  @override
+  void dispose() {
+    load.dispose();
+    save.dispose();
+    super.dispose();
   }
 }

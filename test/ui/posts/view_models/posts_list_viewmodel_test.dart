@@ -10,7 +10,6 @@ void main() {
 
       final vm = PostsListViewModel(postsRepository: repo);
 
-      // Command0 was triggered in the constructor — wait one microtask round.
       await Future<void>.delayed(Duration.zero);
 
       expect(repo.getPostsCalls, 1);

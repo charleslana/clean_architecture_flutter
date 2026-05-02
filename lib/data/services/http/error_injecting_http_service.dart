@@ -4,17 +4,6 @@ import 'dart:io';
 import 'error_injector.dart';
 import 'http_service.dart';
 
-/// Decorator over an [HttpService] that consults an [ErrorInjector] before
-/// every request and may short-circuit the call with a simulated failure.
-///
-/// Sits between the real [HttpService] and the [ApiClient]:
-///   - `ErrorMode.none` → every call passes through to the inner service
-///     unchanged,
-///   - any other mode → the decorator throws/returns the simulated failure
-///     **exactly** as it would arrive from the network. The repository sees a
-///     real `SocketException`, `TimeoutException`, or non-2xx response and
-///     reacts via its existing `try/catch` → `Result.error` path. No special
-///     branch is added anywhere upstream.
 class ErrorInjectingHttpService implements HttpService {
   ErrorInjectingHttpService({required this.inner, required this.injector});
 
@@ -28,7 +17,6 @@ class ErrorInjectingHttpService implements HttpService {
     if (!mode.isActive) return realCall();
 
     if (mode == ErrorMode.timeout) {
-      // Brief delay so the View shows a spinner before the failure.
       await Future<void>.delayed(const Duration(milliseconds: 600));
       throw TimeoutException('Simulated timeout');
     }
@@ -36,9 +24,6 @@ class ErrorInjectingHttpService implements HttpService {
       throw const SocketException('Simulated: no internet');
     }
     if (mode == ErrorMode.unexpectedShape) {
-      // 200 OK but the body has the wrong shape — `[{}]` is valid JSON, so
-      // `jsonDecode` succeeds, but the DTO's `as int` / `as String` casts
-      // throw `TypeError`. Exercises the parse-error path end-to-end.
       return const HttpResponse(
         statusCode: 200,
         body: '[{}]',

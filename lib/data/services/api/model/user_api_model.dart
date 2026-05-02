@@ -22,12 +22,11 @@ class UserApiModel {
     final address =
         jsonOptional<Map<String, dynamic>>(json, 'address') ?? const {};
     return UserApiModel(
-      // Required fields — failure here means the backend changed the contract.
       id: jsonRequired<int>(json, 'id'),
       name: jsonRequired<String>(json, 'name'),
       username: jsonRequired<String>(json, 'username'),
       email: jsonRequired<String>(json, 'email'),
-      // Optional fields — gracefully default to empty if absent.
+
       phone: jsonOptional<String>(json, 'phone') ?? '',
       website: jsonOptional<String>(json, 'website') ?? '',
       companyName: jsonOptional<String>(company, 'name') ?? '',

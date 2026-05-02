@@ -59,9 +59,6 @@ class PostDetailScreen extends StatelessWidget {
   }
 }
 
-/// Comments section reacts to [PostDetailViewModel.loadComments]
-/// independently from the post itself: a comments failure doesn't hide the
-/// post, and the post can render before comments are ready.
 class _CommentsSection extends StatelessWidget {
   const _CommentsSection({required this.viewModel});
 

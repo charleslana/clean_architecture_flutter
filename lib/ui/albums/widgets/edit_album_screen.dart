@@ -9,11 +9,6 @@ import '../../core/ui/default_app_bar.dart';
 import '../../core/ui/error_indicator.dart';
 import '../view_models/edit_album_viewmodel.dart';
 
-/// Edit screen — single page, PUT (replace) on save.
-///
-/// On mount, the ViewModel's `load` command fetches the album so the form
-/// can start populated. On save, we await the `save` command (PUT) and only
-/// navigate back on success.
 class EditAlbumScreen extends StatefulWidget {
   const EditAlbumScreen({super.key, required this.viewModel});
 
@@ -43,9 +38,6 @@ class _EditAlbumScreenState extends State<EditAlbumScreen> {
     super.dispose();
   }
 
-  /// When the load command finishes, copy the fetched album into the text
-  /// controllers — only once (subsequent re-loads shouldn't blow away the
-  /// user's edits in progress).
   void _populateOnLoad() {
     if (_populated) return;
     final album = widget.viewModel.album;
